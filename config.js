@@ -2,14 +2,16 @@
 // Follow setup guides to fill these values
 
 const CONFIG = {
+    // Supabase Configuration
     supabase: {
-        url: 'YOUR_SUPABASE_URL',
-        anonKey: 'YOUR_SUPABASE_ANON_KEY'
+        url: 'https://axicketcipwjucuerkeh.supabase.co',      anonKey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4aWNrZXRjaXB3anVjdWVya2VoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NTc0MjEsImV4cCI6MjA5MjQzMzQyMX0.tKdVm2g0nk80o_ftOP6mzF7LX-Qg_D0U27b_Tbyn9mg'
     },
+    
+    // Google Drive API Configuration
     google: {
-        clientId: 'YOUR_GOOGLE_CLIENT_ID',
-        apiKey: 'YOUR_GOOGLE_API_KEY',
-        driveFolder: 'DesignVault'
+        clientId: '1020257855534-95d5j27ne740824lg5hop8id6etfs6lf.apps.googleusercontent.com', // e.g., xxxxx.apps.googleusercontent.com
+        apiKey: 'AIzaSyDyp8SA0hniQAQzNC5Nho8Jyhn8uz_0oCc',
+        driveFolder: 'DesignVault' // Folder name in your Drive
     }
 };
 
