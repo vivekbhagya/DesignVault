@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DesignVault - Your Visual Idea Bank</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Auth Screen -->
+    <div id="authScreen" class="screen">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h1>🎨 DesignVault</h1>
+                <p>Your visual idea bank. Save inspiration from anywhere.</p>
+                <button id="googleSignIn" class="btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+                        <path d="M9.003 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.438 15.983 5.482 18 9.003 18z" fill="#34A853"/>
+                        <path d="M3.964 10.712c-.18-.54-.282-1.117-.282-1.71 0-.593.102-1.17.282-1.71V4.96H.957C.347 6.175 0 7.55 0 9.002c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+                        <path d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.426 0 9.003 0 5.482 0 2.438 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z" fill="#EA4335"/>
+                    </svg>
+                    Sign in with Google
+                </button>
+                <p class="auth-note">We'll access your Google Drive to store images</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="appScreen" class="screen hidden">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1 class="logo">🎨 DesignVault</h1>
+            </div>
+            <div class="header-center">
+                <div class="search-bar">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search ideas..." />
+                </div>
+            </div>
+            <div class="header-right">
+                <button id="addBtn" class="btn-add">+ Add Idea</button>
+                <div class="user-menu">
+                    <img id="userAvatar" class="avatar" src="" alt="User" />
+                    <button id="signOutBtn" class="btn-text">Sign Out</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar Filters -->
+            <aside class="sidebar">
+                <div class="filter-section">
+                    <h3>Filters</h3>
+                    <div id="tagFilters" class="tag-filters">
+                        <!-- Tags will be populated dynamically -->
+                    </div>
+                    <button id="clearFilters" class="btn-text">Clear All</button>
+                </div>
+                
+                <div class="stats">
+                    <p><strong id="totalIdeas">0</strong> ideas saved</p>
+                </div>
+            </aside>
+
+            <!-- Ideas Grid -->
+            <main class="content">
+                <div id="loadingState" class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading your ideas...</p>
+                </div>
+                
+                <div id="emptyState" class="empty-state hidden">
+                    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                        <circle cx="60" cy="60" r="50" stroke="#e0e0e0" stroke-width="2" stroke-dasharray="8 8"/>
+                        <path d="M60 40v40M40 60h40" stroke="#999" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                    <h2>No ideas yet</h2>
+                    <p>Start building your visual library</p>
+                    <button class="btn-primary" onclick="document.getElementById('addBtn').click()">Add Your First Idea</button>
+                </div>
+
+                <div id="ideasGrid" class="ideas-grid hidden">
+                    <!-- Ideas will be populated dynamically -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="ideaModal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Idea</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="ideaForm">
+                    <!-- Image Upload -->
+                    <div class="form-group">
+                        <label>Image *</label>
+                        <div class="upload-area" id="uploadArea">
+                            <input type="file" id="imageInput" accept="image/*" hidden />
+                            <div id="uploadPrompt" class="upload-prompt">
+                                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                                    <path d="M40 32v8H8v-8M32 16l-8-8-8 8M24 8v24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <p>Click or drag image here</p>
+                                <span>JPG, PNG, GIF up to 10MB</span>
+                            </div>
+                            <div id="imagePreview" class="image-preview hidden">
+                                <img id="previewImg" src="" alt="Preview" />
+                                <button type="button" class="btn-remove" id="removeImage">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Title -->
+                    <div class="form-group">
+                        <label for="titleInput">Title</label>
+                        <input type="text" id="titleInput" placeholder="e.g., Minimal Logo Design" />
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="descInput">Description</label>
+                        <textarea id="descInput" rows="3" placeholder="Quick notes about this idea..."></textarea>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="form-group">
+                        <label for="tagInput">Tags</label>
+                        <div class="tag-input-wrapper">
+                            <div id="tagsList" class="tags-list"></div>
+                            <input type="text" id="tagInput" placeholder="Type and press Enter" />
+                        </div>
+                        <div class="suggested-tags">
+                            <span class="tag-suggestion" data-tag="logo">logo</span>
+                            <span class="tag-suggestion" data-tag="typography">typography</span>
+                            <span class="tag-suggestion" data-tag="color">color</span>
+                            <span class="tag-suggestion" data-tag="layout">layout</span>
+                            <span class="tag-suggestion" data-tag="thumbnail">thumbnail</span>
+                            <span class="tag-suggestion" data-tag="poster">poster</span>
+                        </div>
+                    </div>
+
+                    <!-- Source URL -->
+                    <div class="form-group">
+                        <label for="sourceInput">Source URL</label>
+                        <input type="url" id="sourceInput" placeholder="https://..." />
+                    </div>
+
+                    <!-- Color Palette -->
+                    <div class="form-group">
+                        <label for="colorInput">Color Palette</label>
+                        <div class="color-input-wrapper">
+                            <input type="text" id="colorInput" placeholder="Enter hex color (e.g., #FF5733)" />
+                            <button type="button" class="btn-secondary" id="addColorBtn">Add Color</button>
+                        </div>
+                        <div id="colorsList" class="colors-list"></div>
+                    </div>
+
+                    <!-- Technique Notes -->
+                    <div class="form-group">
+                        <label for="techniqueInput">Technique Notes</label>
+                        <textarea id="techniqueInput" rows="2" placeholder="e.g., Gradient overlay, 3D text effect..."></textarea>
+                    </div>
+
+                    <input type="hidden" id="ideaId" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+                <button type="button" class="btn-primary" id="saveBtn">
+                    <span id="saveBtnText">Save Idea</span>
+                    <span id="saveBtnLoader" class="btn-loader hidden"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Modal -->
+    <div id="viewModal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content view-modal">
+            <div class="modal-header">
+                <h2 id="viewTitle"></h2>
+                <div class="view-actions">
+                    <button class="btn-icon" id="editIdeaBtn" title="Edit">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M14.166 2.5a2.121 2.121 0 1 1 3 3L6.25 16.416l-4.166.834.833-4.167L14.166 2.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button class="btn-icon" id="deleteIdeaBtn" title="Delete">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M2.5 5h15M6.667 5V3.333a1.667 1.667 0 0 1 1.666-1.666h3.334a1.667 1.667 0 0 1 1.666 1.666V5m2.5 0v11.667a1.667 1.667 0 0 1-1.666 1.666H5.833a1.667 1.667 0 0 1-1.666-1.666V5h11.666z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button class="modal-close">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body view-body">
+                <div class="view-image">
+                    <img id="viewImage" src="" alt="" />
+                </div>
+                <div class="view-details">
+                    <div id="viewDescription" class="view-section"></div>
+                    <div id="viewTags" class="view-section"></div>
+                    <div id="viewSource" class="view-section"></div>
+                    <div id="viewColors" class="view-section"></div>
+                    <div id="viewTechnique" class="view-section"></div>
+                    <div id="viewTimestamp" class="view-section timestamp"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- Application Scripts -->
+    <script src="config.js"></script>
+    <script src="supabase.js"></script>
+    <script src="drive.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

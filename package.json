@@ -1,0 +1,12 @@
+{
+  "name": "designvault",
+  "version": "1.0.0",
+  "description": "Visual idea bank for designers",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "deploy": "vercel"
+  },
+  "keywords": ["design", "moodboard", "inspiration"],
+  "author": "Workly",
+  "license": "MIT"
+}
