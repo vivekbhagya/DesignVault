@@ -157,20 +157,17 @@ const App = {
     },
     
     // Handle sign in
-    async handleSignIn() {
+async handleSignIn() {
     try {
-        const googleUser = await GoogleDrive.signIn();
-        const authResponse = googleUser.getAuthResponse();
-        
-        // Sign in to Supabase with ID token
-        const { data, error } = await SupabaseDB.client.auth.signInWithIdToken({
+        const { data, error } = await SupabaseDB.client.auth.signInWithOAuth({
             provider: 'google',
-            token: authResponse.id_token || authResponse.access_token,
+            options: {
+                scopes: 'https://www.googleapis.com/auth/drive.file',
+                redirectTo: window.location.origin
+            }
         });
         
         if (error) throw error;
-        
-        await this.handleAuthSuccess();
     } catch (error) {
         console.error('Sign in error:', error);
         alert('Failed to sign in. Please try again.');
