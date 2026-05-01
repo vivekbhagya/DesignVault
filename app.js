@@ -151,11 +151,11 @@ const App = {
         SupabaseDB.client.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN' && session?.provider_token) {
                 // Store Google Drive access token from Supabase OAuth
-                GoogleDrive.accessToken = session.provider_token;
+                GoogleDrive.setAccessToken(session.provider_token);
                 localStorage.setItem('drive_token', session.provider_token);
             } else if (event === 'SIGNED_OUT') {
                 localStorage.removeItem('drive_token');
-                GoogleDrive.accessToken = null;
+                GoogleDrive.setAccessToken(null);
             }
         });
 
@@ -164,12 +164,12 @@ const App = {
         // Restore Drive token from localStorage if available
         const savedDriveToken = localStorage.getItem('drive_token');
         if (savedDriveToken && !GoogleDrive.accessToken) {
-            GoogleDrive.accessToken = savedDriveToken;
+            GoogleDrive.setAccessToken(savedDriveToken);
         }
         
         if (session) {
             if (session.provider_token) {
-                GoogleDrive.accessToken = session.provider_token;
+                GoogleDrive.setAccessToken(session.provider_token);
                 localStorage.setItem('drive_token', session.provider_token);
             }
             await this.handleAuthSuccess();

@@ -6,6 +6,14 @@ const GoogleDrive = {
     folderId: null,
     tokenClient: null,
     
+    // Set access token for both fetch and gapi.client
+    setAccessToken(token) {
+        this.accessToken = token;
+        if (window.gapi && gapi.client) {
+            gapi.client.setToken({ access_token: token });
+        }
+    },
+    
     // Initialize Google API
     async init() {
         return new Promise((resolve) => {
@@ -44,8 +52,7 @@ const GoogleDrive = {
                         reject(response);
                         return;
                     }
-                    
-                    this.accessToken = response.access_token;
+                    this.setAccessToken(response.access_token);
                     
                     // Get or create folder
                     await this.ensureFolder();
@@ -81,7 +88,7 @@ const GoogleDrive = {
             if (this.accessToken) {
                 google.accounts.oauth2.revoke(this.accessToken);
             }
-            this.accessToken = null;
+            this.setAccessToken(null);
             this.folderId = null;
         } catch (error) {
             console.error('Google sign out error:', error);
