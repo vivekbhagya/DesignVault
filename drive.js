@@ -1,21 +1,29 @@
-// Google Drive API Helper
+// Google Drive API Helper - Updated for Google Identity Services
 // Handles image uploads to Google Drive
 
 const GoogleDrive = {
     accessToken: null,
     folderId: null,
+    tokenClient: null,
     
     // Initialize Google API
     async init() {
         return new Promise((resolve) => {
-            gapi.load('client:auth2', async () => {
+            // Initialize Google API client
+            gapi.load('client', async () => {
                 try {
                     await gapi.client.init({
                         apiKey: CONFIG.google.apiKey,
-                        clientId: CONFIG.google.clientId,
-                        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
-                        scope: 'https://www.googleapis.com/auth/drive.file'
+                        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
                     });
+                    
+                    // Initialize token client for OAuth
+                    this.tokenClient = google.accounts.oauth2.initTokenClient({
+                        client_id: CONFIG.google.clientId,
+                        scope: 'https://www.googleapis.com/auth/drive.file',
+                        callback: '', // Will be set per request
+                    });
+                    
                     console.log('✅ Google Drive initialized');
                     resolve(true);
                 } catch (error) {
@@ -28,24 +36,51 @@ const GoogleDrive = {
     
     // Sign in with Google
     async signIn() {
-        try {
-            const googleUser = await gapi.auth2.getAuthInstance().signIn();
-            this.accessToken = googleUser.getAuthResponse().access_token;
-            
-            // Get or create DesignVault folder
-            await this.ensureFolder();
-            
-            return googleUser;
-        } catch (error) {
-            console.error('Google sign in error:', error);
-            throw error;
-        }
+        return new Promise((resolve, reject) => {
+            try {
+                // Request access token
+                this.tokenClient.callback = async (response) => {
+                    if (response.error !== undefined) {
+                        reject(response);
+                        return;
+                    }
+                    
+                    this.accessToken = response.access_token;
+                    
+                    // Get or create folder
+                    await this.ensureFolder();
+                    
+                    // Return user info
+                    const userInfo = {
+                        getBasicProfile: () => ({
+                            getName: () => 'User',
+                            getEmail: () => '',
+                            getImageUrl: () => ''
+                        }),
+                        getAuthResponse: () => ({
+                            access_token: this.accessToken,
+                            id_token: response.id_token || ''
+                        })
+                    };
+                    
+                    resolve(userInfo);
+                };
+                
+                // Request token
+                this.tokenClient.requestAccessToken({ prompt: 'consent' });
+            } catch (error) {
+                console.error('Google sign in error:', error);
+                reject(error);
+            }
+        });
     },
     
     // Sign out
     async signOut() {
         try {
-            await gapi.auth2.getAuthInstance().signOut();
+            if (this.accessToken) {
+                google.accounts.oauth2.revoke(this.accessToken);
+            }
             this.accessToken = null;
             this.folderId = null;
         } catch (error) {
@@ -55,13 +90,17 @@ const GoogleDrive = {
     
     // Check if signed in
     isSignedIn() {
-        return gapi.auth2.getAuthInstance().isSignedIn.get();
+        return this.accessToken !== null;
     },
     
-    // Get current user
+    // Get current user (simplified)
     getCurrentUser() {
         if (!this.isSignedIn()) return null;
-        return gapi.auth2.getAuthInstance().currentUser.get();
+        return {
+            getBasicProfile: () => ({
+                getImageUrl: () => ''
+            })
+        };
     },
     
     // Ensure DesignVault folder exists
