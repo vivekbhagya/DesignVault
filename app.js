@@ -163,7 +163,9 @@ async handleSignIn() {
             provider: 'google',
             options: {
                 scopes: 'https://www.googleapis.com/auth/drive.file',
-                redirectTo: 'https://design-vault-z7pg.vercel.app'
+                redirectTo: window.location.hostname === 'localhost' 
+                    ? 'http://localhost:8000' 
+                    : window.location.origin
             }
         });
         
