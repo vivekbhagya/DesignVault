@@ -172,7 +172,7 @@ async handleSignIn() {
         console.error('Sign in error:', error);
         alert('Failed to sign in. Please try again.');
     }
-}
+},
     
     // Handle successful auth
     async handleAuthSuccess() {
