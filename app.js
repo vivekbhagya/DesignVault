@@ -29,10 +29,7 @@ const App = {
         }
         
         const driveReady = await GoogleDrive.init();
-        if (!driveReady) {
-            alert('Failed to initialize Google Drive. Please check your configuration.');
-            return;
-        }
+        
         
         // Check for existing session
         await this.checkAuth();
