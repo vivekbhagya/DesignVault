@@ -9,7 +9,7 @@ const CONFIG = {
     
     // Google Drive API Configuration
     google: {
-        clientId: '1020257855534-95d5j27ne740824lg5hop8id6etfs6lf.apps.googleusercontent.com', // e.g., xxxxx.apps.googleusercontent.com
+        clientId: '525904531808-goo7d5p2n6bgisqbjm213tiftvd4jk4o.apps.googleusercontent.com', // e.g., xxxxx.apps.googleusercontent.com
         apiKey: 'AIzaSyDyp8SA0hniQAQzNC5Nho8Jyhn8uz_0oCc',
         driveFolder: 'DesignVault' // Folder name in your Drive
     }
