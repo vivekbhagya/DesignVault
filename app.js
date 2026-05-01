@@ -147,9 +147,31 @@ const App = {
     
     // Check authentication
     async checkAuth() {
+        // We can listen to auth state changes to capture the provider_token right after login
+        SupabaseDB.client.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session?.provider_token) {
+                // Store Google Drive access token from Supabase OAuth
+                GoogleDrive.accessToken = session.provider_token;
+                localStorage.setItem('drive_token', session.provider_token);
+            } else if (event === 'SIGNED_OUT') {
+                localStorage.removeItem('drive_token');
+                GoogleDrive.accessToken = null;
+            }
+        });
+
         const session = await SupabaseDB.getSession();
         
-        if (session && GoogleDrive.isSignedIn()) {
+        // Restore Drive token from localStorage if available
+        const savedDriveToken = localStorage.getItem('drive_token');
+        if (savedDriveToken && !GoogleDrive.accessToken) {
+            GoogleDrive.accessToken = savedDriveToken;
+        }
+        
+        if (session) {
+            if (session.provider_token) {
+                GoogleDrive.accessToken = session.provider_token;
+                localStorage.setItem('drive_token', session.provider_token);
+            }
             await this.handleAuthSuccess();
         } else {
             this.showAuthScreen();
@@ -183,10 +205,18 @@ async handleSignIn() {
         
         SupabaseDB.setUser(session.user);
         
-        const googleUser = GoogleDrive.getCurrentUser();
-        if (googleUser) {
-            const profile = googleUser.getBasicProfile();
-            this.elements.userAvatar.src = profile.getImageUrl();
+        // Get avatar from Supabase user metadata
+        if (session.user && session.user.user_metadata && session.user.user_metadata.avatar_url) {
+            this.elements.userAvatar.src = session.user.user_metadata.avatar_url;
+        }
+        
+        // If we don't have a drive token, prompt Google Drive sign in
+        if (!GoogleDrive.isSignedIn()) {
+            try {
+                await GoogleDrive.signIn();
+            } catch (e) {
+                console.error("Failed to sign in to Google Drive separately", e);
+            }
         }
         
         this.showAppScreen();
