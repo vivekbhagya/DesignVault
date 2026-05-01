@@ -164,7 +164,7 @@ async handleSignIn() {
             options: {
                 scopes: 'https://www.googleapis.com/auth/drive.file',
                 redirectTo: window.location.hostname === 'localhost' 
-                    ? 'http://localhost:8000' 
+                    ? 'http://localhost:3000' 
                     : window.location.origin
             }
         });
